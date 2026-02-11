@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canteen Stock Market Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a, #1a1a2e, #16213e, #0f3460);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+            color: #fff;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: floatIn 0.8s ease;
+        }
+
+        @keyframes floatIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .main-header {
+            font-size: 52px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00d9ff, #00ff88, #667eea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            text-shadow: 0 0 40px rgba(0, 217, 255, 0.3);
+            letter-spacing: -1px;
+        }
+
+        .main-subtitle {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .market-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .market-stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 24px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .market-stat-value {
+            color: #00d9ff;
+            margin-left: 8px;
+            font-weight: 700;
+        }
+
+        .rush-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 800;
+            margin-top: 20px;
+            animation: pulseGlow 2s ease infinite;
+            box-shadow: 0 0 30px rgba(255, 107, 107, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 30px rgba(255, 107, 107, 0.6);
+            }
+            50% { 
+                transform: scale(1.05);
+                box-shadow: 0 0 40px rgba(255, 107, 107, 0.8);
+            }
+        }
+
+        .items-container {
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .items-scroll {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding-bottom: 20px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 217, 255, 0.5) rgba(255, 255, 255, 0.1);
+        }
+
+        .items-scroll::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .items-scroll::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .items-scroll::-webkit-scrollbar-thumb {
+            background: linear-gradient(90deg, #00d9ff, #667eea);
+            border-radius: 10px;
+        }
+
+        .items-grid {
+            display: flex;
+            gap: 15px;
+            padding: 10px 5px;
+            animation: floatIn 1s ease;
+        }
+
+        .item-card {
+            min-width: 160px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 20px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .item-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top left, rgba(0, 217, 255, 0.1), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .item-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: rgba(0, 217, 255, 0.6);
+            box-shadow: 0 15px 40px rgba(0, 217, 255, 0.25);
+        }
+
+        .item-card:hover::before {
+            opacity: 1;
+        }
+
+        .item-card.active {
+            background: rgba(0, 217, 255, 0.12);
+            border-color: #00d9ff;
+            box-shadow: 0 0 40px rgba(0, 217, 255, 0.4);
+            transform: scale(1.05);
+        }
+
+        .item-card.active::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00d9ff, #667eea, #00d9ff);
+            border-radius: 24px;
+            z-index: -1;
+            animation: borderGlow 3s linear infinite;
+            background-size: 200% 200%;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .item-emoji {
+            font-size: 42px;
+            margin-bottom: 10px;
+            display: block;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+        }
+
+        .item-name {
+            font-size: 14px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        .item-mini-price {
+            font-size: 16px;
+            color: #00d9ff;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .item-trend {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        .trend-up {
+            color: #00ff88;
+        }
+
+        .trend-down {
+            color: #ff4757;
+        }
+
+        .trend-neutral {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .item-viewers {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 35px;
+            padding: 50px 45px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            animation: floatIn 1.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 217, 255, 0.03) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .current-item-header {
+            text-align: center;
+            margin-bottom: 35px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .current-item-emoji {
+            font-size: 64px;
+            margin-bottom: 15px;
+            display: block;
+            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .current-item-title {
+            font-size: 36px;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 20px rgba(0, 217, 255, 0.3);
+            letter-spacing: -0.5px;
+        }
+
+        .current-item-desc {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+        }
+
+        .price-section {
+            text-align: center;
+            margin: 45px 0;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 28px;
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            z-index: 1;
+        }
+
+        .price-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .price-display {
+            font-size: 80px;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 40px rgba(0, 217, 255, 0.6);
+            transition: all 0.3s ease;
+            letter-spacing: -2px;
+        }
+
+        .price-display.flash-up {
+            color: #00ff88;
+            text-shadow: 0 0 50px rgba(0, 255, 136, 0.8);
+            animation: priceFlashUp 0.6s ease;
+        }
+
+        .price-display.flash-down {
+            color: #ff4757;
+            text-shadow: 0 0 50px rgba(255, 71, 87, 0.8);
+            animation: priceFlashDown 0.6s ease;
+        }
+
+        @keyframes priceFlashUp {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        @keyframes priceFlashDown {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(0.95); }
+        }
+
+        .price-arrow {
+            display: inline-block;
+            font-size: 48px;
+            margin-left: 15px;
+            animation: bounceArrow 0.7s ease;
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+
+        .price-arrow.up {
+            color: #00ff88;
+        }
+
+        .price-arrow.down {
+            color: #ff4757;
+        }
+
+        @keyframes bounceArrow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .shake {
+            animation: shake 0.6s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 35px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.05), rgba(102, 126, 234, 0.05));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.15);
+            border-color: rgba(0, 217, 255, 0.3);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0, 217, 255, 0.3);
+        }
+
+        .stat-value.urgent {
+            color: #ff4757;
+            text-shadow: 0 2px 10px rgba(255, 71, 87, 0.5);
+        }
+
+        .stat-value.good {
+            color: #00ff88;
+            text-shadow: 0 2px 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .stat-value.warning {
+            color: #ffa502;
+            text-shadow: 0 2px 10px rgba(255, 165, 2, 0.5);
+        }
+
+        .demand-section {
+            margin: 35px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .demand-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .demand-bar-container {
+            position: relative;
+            width: 100%;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .demand-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #00d9ff);
+            background-size: 200% 100%;
+            border-radius: 12px;
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        .buy-button {
+            width: 100%;
+            padding: 24px;
+            background: linear-gradient(135deg, #00d9ff, #0099cc, #667eea);
+            background-size: 200% 200%;
+            border: none;
+            border-radius: 20px;
+            font-size: 20px;
+            font-weight: 900;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 8px 35px rgba(0, 217, 255, 0.4);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            animation: buttonGradient 3s ease infinite;
+        }
+
+        @keyframes buttonGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .buy-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.7s ease, height 0.7s ease;
+        }
+
+        .buy-button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 50px rgba(0, 217, 255, 0.6);
+        }
+
+        .buy-button:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        .buy-button:active {
+            transform: translateY(-2px);
+        }
+
+        .buy-button:disabled {
+            background: rgba(100, 100, 100, 0.3);
+            cursor: not-allowed;
+            opacity: 0.5;
+            animation: none;
+        }
+
+        .buy-button-text {
+            position: relative;
+            z-index: 2;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 25px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 16px;
+            font-weight: 600;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            position: absolute;
+            animation: confettiFall 3.5s linear forwards;
+        }
+
+        @keyframes confettiFall {
+            to {
+                transform: translateY(120vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-header {
+                font-size: 36px;
+            }
+            
+            .price-display {
+                font-size: 56px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .card {
+                padding: 35px 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-section">
+            <h1 class="main-header">🍜 Canteen Stock Market Pro</h1>
+            <p class="main-subtitle">Advanced Real-Time Trading Dashboard • Live Market Dynamics</p>
+            <div class="market-stats">
+                <div class="market-stat-item">
+                    📊 Total Items: <span class="market-stat-value">20</span>
+                </div>
+                <div class="market-stat-item">
+                    👥 Active Buyers: <span class="market-stat-value" id="totalViewers">1247</span>
+                </div>
+                <div class="market-stat-item">
+                    💰 Avg Price: <span class="market-stat-value" id="avgPrice">₹28</span>
+                </div>
+            </div>
+            <span class="rush-badge" id="rushBadge" style="display: none;">⚡ BREAK TIME RUSH ACTIVE!</span>
+        </div>
+
+        <div class="items-container">
+            <div class="items-scroll">
+                <div class="items-grid" id="itemsGrid">
+                    <!-- Items will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="current-item-header">
+                <span class="current-item-emoji" id="currentEmoji">🍜</span>
+                <h2 class="current-item-title" id="itemTitle">Hot Maggi</h2>
+                <p class="current-item-desc" id="itemDesc">2-Minute Noodles • Spicy Masala</p>
+            </div>
+
+            <div class="price-section" id="priceSection">
+                <div class="price-label">Live Market Price</div>
+                <div class="price-display" id="priceDisplay">
+                    ₹<span id="priceValue">20</span>
+                    <span class="price-arrow" id="priceArrow" style="display: none;">↑</span>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">👀 Live Watchers</div>
+                    <div class="stat-value" id="viewersCount">87</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">📦 Stock Available</div>
+                    <div class="stat-value" id="stockLeft">25</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">⚡ Demand Index</div>
+                    <div class="stat-value" id="demandPercent">65%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">📈 24h Change</div>
+                    <div class="stat-value" id="priceChange">+12%</div>
+                </div>
+            </div>
+
+            <div class="demand-section">
+                <div class="demand-label">
+                    <span>🔥 Market Pressure</span>
+                    <span id="demandStatus">Moderate</span>
+                </div>
+                <div class="demand-bar-container">
+                    <div class="demand-fill" id="demandFill" style="width: 65%;"></div>
+                </div>
+            </div>
+
+            <button class="buy-button" id="buyButton">
+                <span class="buy-button-text">Buy Now</span>
+            </button>
+
+            <div class="loading" id="loading">
+                Processing your order... 🎉
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const items = [
+            { id: 'maggi', emoji: '🍜', name: 'Maggi', fullName: 'Hot Maggi', desc: '2-Minute Noodles • Spicy Masala', basePrice: 20, minPrice: 12, maxPrice: 65, currentPrice: 20, previousPrice: 20, stock: 25, maxStock: 50, viewers: 87, demand: 65, initialPrice: 20 },
+            { id: 'samosa', emoji: '🥟', name: 'Samosa', fullName: 'Crispy Samosa', desc: 'Fresh & Hot • Potato Filling', basePrice: 15, minPrice: 10, maxPrice: 45, currentPrice: 15, previousPrice: 15, stock: 35, maxStock: 60, viewers: 64, demand: 58, initialPrice: 15 },
+            { id: 'chai', emoji: '☕', name: 'Chai', fullName: 'Masala Chai', desc: 'Special Blend • Extra Strong', basePrice: 10, minPrice: 7, maxPrice: 28, currentPrice: 10, previousPrice: 10, stock: 50, maxStock: 80, viewers: 92, demand: 72, initialPrice: 10 },
+            { id: 'coldcoffee', emoji: '🥤', name: 'Cold Coffee', fullName: 'Iced Cold Coffee', desc: 'Chilled • Extra Thick', basePrice: 30, minPrice: 22, maxPrice: 85, currentPrice: 30, previousPrice: 30, stock: 20, maxStock: 40, viewers: 71, demand: 68, initialPrice: 30 },
+            { id: 'vadapav', emoji: '🍔', name: 'Vada Pav', fullName: 'Mumbai Vada Pav', desc: 'Street Style • Extra Chutney', basePrice: 18, minPrice: 12, maxPrice: 50, currentPrice: 18, previousPrice: 18, stock: 30, maxStock: 50, viewers: 78, demand: 61, initialPrice: 18 },
+            { id: 'dosa', emoji: '🥞', name: 'Dosa', fullName: 'Crispy Masala Dosa', desc: 'South Indian • With Chutney', basePrice: 35, minPrice: 28, maxPrice: 95, currentPrice: 35, previousPrice: 35, stock: 18, maxStock: 35, viewers: 56, demand: 55, initialPrice: 35 },
+            { id: 'sandwich', emoji: '🥪', name: 'Sandwich', fullName: 'Grilled Sandwich', desc: 'Cheese & Veggies • Toasted', basePrice: 25, minPrice: 18, maxPrice: 70, currentPrice: 25, previousPrice: 25, stock: 28, maxStock: 45, viewers: 69, demand: 63, initialPrice: 25 },
+            { id: 'paratha', emoji: '🫓', name: 'Paratha', fullName: 'Aloo Paratha', desc: 'Stuffed • With Butter & Curd', basePrice: 22, minPrice: 16, maxPrice: 60, currentPrice: 22, previousPrice: 22, stock: 32, maxStock: 50, viewers: 61, demand: 59, initialPrice: 22 },
+            { id: 'pizza', emoji: '🍕', name: 'Pizza', fullName: 'Margherita Pizza', desc: 'Cheesy • Wood Fired', basePrice: 80, minPrice: 65, maxPrice: 180, currentPrice: 80, previousPrice: 80, stock: 12, maxStock: 25, viewers: 95, demand: 82, initialPrice: 80 },
+            { id: 'burger', emoji: '🍔', name: 'Burger', fullName: 'Veg Burger', desc: 'Grilled Patty • Extra Cheese', basePrice: 40, minPrice: 32, maxPrice: 110, currentPrice: 40, previousPrice: 40, stock: 22, maxStock: 40, viewers: 88, demand: 75, initialPrice: 40 },
+            { id: 'momos', emoji: '🥟', name: 'Momos', fullName: 'Steam Momos', desc: 'Veg • With Spicy Chutney', basePrice: 30, minPrice: 22, maxPrice: 75, currentPrice: 30, previousPrice: 30, stock: 38, maxStock: 55, viewers: 82, demand: 70, initialPrice: 30 },
+            { id: 'icecream', emoji: '🍦', name: 'Ice Cream', fullName: 'Vanilla Cone', desc: 'Premium • Extra Creamy', basePrice: 25, minPrice: 18, maxPrice: 65, currentPrice: 25, previousPrice: 25, stock: 30, maxStock: 50, viewers: 73, demand: 66, initialPrice: 25 },
+            { id: 'pastry', emoji: '🍰', name: 'Pastry', fullName: 'Chocolate Pastry', desc: 'Fresh Baked • Rich Chocolate', basePrice: 45, minPrice: 35, maxPrice: 120, currentPrice: 45, previousPrice: 45, stock: 15, maxStock: 30, viewers: 67, demand: 64, initialPrice: 45 },
+            { id: 'juice', emoji: '🧃', name: 'Juice', fullName: 'Fresh Orange Juice', desc: 'Freshly Squeezed • No Sugar', basePrice: 35, minPrice: 28, maxPrice: 90, currentPrice: 35, previousPrice: 35, stock: 25, maxStock: 45, viewers: 59, demand: 57, initialPrice: 35 },
+            { id: 'frankie', emoji: '🌯', name: 'Frankie', fullName: 'Veg Frankie', desc: 'Mumbai Style • Spicy Roll', basePrice: 35, minPrice: 28, maxPrice: 85, currentPrice: 35, previousPrice: 35, stock: 20, maxStock: 35, viewers: 76, demand: 69, initialPrice: 35 },
+            { id: 'pav', emoji: '🍞', name: 'Pav Bhaji', fullName: 'Mumbai Pav Bhaji', desc: 'Buttery • Extra Bhaji', basePrice: 40, minPrice: 32, maxPrice: 100, currentPrice: 40, previousPrice: 40, stock: 24, maxStock: 40, viewers: 84, demand: 73, initialPrice: 40 },
+            { id: 'noodles', emoji: '🍝', name: 'Noodles', fullName: 'Hakka Noodles', desc: 'Indo-Chinese • Veg', basePrice: 38, minPrice: 30, maxPrice: 95, currentPrice: 38, previousPrice: 38, stock: 27, maxStock: 45, viewers: 71, demand: 65, initialPrice: 38 },
+            { id: 'biryani', emoji: '🍚', name: 'Biryani', fullName: 'Veg Biryani', desc: 'Hyderabadi Style • Fragrant', basePrice: 60, minPrice: 48, maxPrice: 150, currentPrice: 60, previousPrice: 60, stock: 16, maxStock: 30, viewers: 97, demand: 85, initialPrice: 60 },
+            { id: 'lassi', emoji: '🥛', name: 'Lassi', fullName: 'Sweet Lassi', desc: 'Thick & Creamy • Chilled', basePrice: 28, minPrice: 20, maxPrice: 70, currentPrice: 28, previousPrice: 28, stock: 33, maxStock: 55, viewers: 63, demand: 60, initialPrice: 28 },
+            { id: 'pakora', emoji: '🍤', name: 'Pakora', fullName: 'Mix Pakora', desc: 'Crispy Fritters • Hot & Fresh', basePrice: 20, minPrice: 15, maxPrice: 55, currentPrice: 20, previousPrice: 20, stock: 40, maxStock: 65, viewers: 58, demand: 56, initialPrice: 20 }
+        ];
+
+        let currentItemId = 'maggi';
+        let isBreakTime = false;
+
+        const itemsGrid = document.getElementById('itemsGrid');
+        const currentEmoji = document.getElementById('currentEmoji');
+        const itemTitle = document.getElementById('itemTitle');
+        const itemDesc = document.getElementById('itemDesc');
+        const priceDisplay = document.getElementById('priceValue');
+        const priceSection = document.getElementById('priceSection');
+        const priceArrow = document.getElementById('priceArrow');
+        const viewersCount = document.getElementById('viewersCount');
+        const stockLeft = document.getElementById('stockLeft');
+        const demandFill = document.getElementById('demandFill');
+        const demandPercent = document.getElementById('demandPercent');
+        const demandStatus = document.getElementById('demandStatus');
+        const priceChange = document.getElementById('priceChange');
+        const rushBadge = document.getElementById('rushBadge');
+        const buyButton = document.getElementById('buyButton');
+        const loading = document.getElementById('loading');
+        const totalViewers = document.getElementById('totalViewers');
+        const avgPrice = document.getElementById('avgPrice');
+
+        function renderItems() {
+            itemsGrid.innerHTML = '';
+            items.forEach(item => {
+                const priceDiff = item.currentPrice - item.previousPrice;
+                const trendClass = priceDiff > 0 ? 'trend-up' : priceDiff < 0 ? 'trend-down' : 'trend-neutral';
+                const trendSymbol = priceDiff > 0 ? '↑' : priceDiff < 0 ? '↓' : '—';
+                const trendText = priceDiff !== 0 ? `${trendSymbol} ₹${Math.abs(priceDiff).toFixed(1)}` : '—';
+                
+                const card = document.createElement('div');
+                card.className = `item-card ${item.id === currentItemId ? 'active' : ''}`;
+                card.innerHTML = `
+                    <span class="item-emoji">${item.emoji}</span>
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-mini-price">₹${Math.round(item.currentPrice)}</div>
+                    <div class="item-trend ${trendClass}">${trendText}</div>
+                    <div class="item-viewers">👁 ${Math.round(item.viewers)}</div>
+                `;
+                card.addEventListener('click', () => switchItem(item.id));
+                itemsGrid.appendChild(card);
+            });
+            
+            updateGlobalStats();
+        }
+
+        function updateGlobalStats() {
+            const total = items.reduce((sum, item) => sum + item.viewers, 0);
+            totalViewers.textContent = Math.round(total).toLocaleString();
+            
+            const avg = items.reduce((sum, item) => sum + item.currentPrice, 0) / items.length;
+            avgPrice.textContent = `₹${Math.round(avg)}`;
+        }
+
+        function switchItem(itemId) {
+            currentItemId = itemId;
+            const item = items.find(i => i.id === itemId);
+            
+            currentEmoji.textContent = item.emoji;
+            itemTitle.textContent = item.fullName;
+            itemDesc.textContent = item.desc;
+            priceDisplay.textContent = Math.round(item.currentPrice);
+            viewersCount.textContent = Math.round(item.viewers);
+            stockLeft.textContent = item.stock;
+            demandFill.style.width = item.demand + '%';
+            demandPercent.textContent = Math.round(item.demand) + '%';
+            
+            const change = ((item.currentPrice - item.initialPrice) / item.initialPrice * 100).toFixed(1);
+            priceChange.textContent = `${change >= 0 ? '+' : ''}${change}%`;
+            priceChange.className = `stat-value ${change > 0 ? 'good' : change < 0 ? 'urgent' : ''}`;
+            
+            updateDemandStatus(item.demand);
+            updateStockStatus();
+            renderItems();
+        }
+
+        function updateDemandStatus(demand) {
+            if (demand >= 80) {
+                demandStatus.textContent = 'Extreme';
+                demandStatus.style.color = '#ff4757';
+            } else if (demand >= 65) {
+                demandStatus.textContent = 'High';
+                demandStatus.style.color = '#ffa502';
+            } else if (demand >= 45) {
+                demandStatus.textContent = 'Moderate';
+                demandStatus.style.color = '#00d9ff';
+            } else {
+                demandStatus.textContent = 'Low';
+                demandStatus.style.color = '#00ff88';
+            }
+        }
+
+        function animateValue(element, start, end, duration) {
+            const startTime = performance.now();
+            const difference = end - start;
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeProgress = progress < 0.5 
+                    ? 2 * progress * progress 
+                    : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+                
+                const current = Math.round(start + difference * easeProgress);
+                element.textContent = current;
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        function calculatePrice(item) {
+            const viewerNormalized = item.viewers / 100;
+            const viewerFactor = (viewerNormalized - 0.6) * 1.2;
+            
+            const stockRatio = item.stock / item.maxStock;
+            const scarcityFactor = stockRatio < 0.2 ? (1 - stockRatio) * 3 : 
+                                  stockRatio < 0.4 ? (1 - stockRatio) * 1.5 :
+                                  stockRatio > 0.8 ? -(stockRatio - 0.8) * 2 : 0;
+            
+            const demandNormalized = item.demand / 100;
+            const demandFactor = (demandNormalized - 0.5) * 0.8;
+            
+            const randomFactor = (Math.random() - 0.5) * 0.25;
+            
+            let breakTimeFactor = 0;
+            if (isBreakTime) {
+                breakTimeFactor = 1.2 + Math.random() * 0.6;
+            }
+            
+            const totalFactor = viewerFactor + scarcityFactor + demandFactor + randomFactor + breakTimeFactor;
+            
+            const priceChange = item.basePrice * totalFactor * 0.18;
+            
+            let newPrice = item.currentPrice + priceChange;
+            newPrice = Math.max(item.minPrice, Math.min(item.maxPrice, newPrice));
+            
+            return newPrice;
+        }
+
+        function updateMarketDynamics() {
+            items.forEach(item => {
+                item.previousPrice = item.currentPrice;
+                
+                const viewerVolatility = Math.floor((Math.random() - 0.5) * 40);
+                const viewerTrend = item.demand > 70 ? 10 : item.demand < 40 ? -10 : 0;
+                item.viewers = Math.max(20, Math.min(150, Math.round(item.viewers + viewerVolatility + viewerTrend)));
+                
+                const viewerDemandImpact = (item.viewers / 100 - 0.6) * 20;
+                const demandChange = viewerDemandImpact + (Math.random() - 0.5) * 12;
+                item.demand = Math.max(20, Math.min(98, item.demand + demandChange));
+                
+                const viewerStockImpact = item.viewers > 80 ? -1 : item.viewers < 50 ? 1 : 0;
+                const demandStockImpact = item.demand > 70 ? -Math.random() * 2 : item.demand < 40 ? Math.random() : 0;
+                
+                const stockChange = viewerStockImpact + demandStockImpact;
+                if (stockChange < 0 && item.stock > 0) {
+                    item.stock = Math.max(0, item.stock + Math.floor(stockChange));
+                } else if (stockChange > 0 && item.stock < item.maxStock) {
+                    item.stock = Math.min(item.maxStock, item.stock + Math.ceil(stockChange));
+                }
+                
+                const oldPrice = item.currentPrice;
+                item.currentPrice = calculatePrice(item);
+                
+                if (item.id === currentItemId) {
+                    animateValue(priceDisplay, oldPrice, Math.round(item.currentPrice), 500);
+
+                    const priceDisplayElement = document.getElementById('priceDisplay');
+                    priceDisplayElement.classList.remove('flash-up', 'flash-down');
+                    
+                    if (item.currentPrice > oldPrice + 0.5) {
+                        priceDisplayElement.classList.add('flash-up');
+                        priceArrow.className = 'price-arrow up';
+                        priceArrow.textContent = '↑';
+                    } else if (item.currentPrice < oldPrice - 0.5) {
+                        priceDisplayElement.classList.add('flash-down');
+                        priceArrow.className = 'price-arrow down';
+                        priceArrow.textContent = '↓';
+                    }
+                    
+                    setTimeout(() => {
+                        priceDisplayElement.classList.remove('flash-up', 'flash-down');
+                    }, 600);
+
+                    if (Math.abs(item.currentPrice - oldPrice) > 0.5) {
+                        priceArrow.style.display = 'inline-block';
+                        setTimeout(() => {
+                            priceArrow.style.display = 'none';
+                        }, 700);
+                    }
+
+                    if (Math.abs(item.currentPrice - oldPrice) > item.basePrice * 0.15) {
+                        priceSection.classList.add('shake');
+                        setTimeout(() => priceSection.classList.remove('shake'), 600);
+                    }
+                    
+                    viewersCount.textContent = Math.round(item.viewers);
+                    stockLeft.textContent = item.stock;
+                    demandFill.style.width = item.demand + '%';
+                    demandPercent.textContent = Math.round(item.demand) + '%';
+                    
+                    const change = ((item.currentPrice - item.initialPrice) / item.initialPrice * 100).toFixed(1);
+                    priceChange.textContent = `${change >= 0 ? '+' : ''}${change}%`;
+                    priceChange.className = `stat-value ${change > 0 ? 'good' : change < 0 ? 'urgent' : ''}`;
+                    
+                    updateDemandStatus(item.demand);
+                    updateStockStatus();
+                }
+            });
+
+            renderItems();
+        }
+
+        function updateStockStatus() {
+            const item = items.find(i => i.id === currentItemId);
+            if (item.stock === 0) {
+                buyButton.disabled = true;
+                buyButton.innerHTML = '<span class="buy-button-text">Out of Stock</span>';
+                stockLeft.className = 'stat-value urgent';
+            } else {
+                buyButton.disabled = false;
+                buyButton.innerHTML = '<span class="buy-button-text">Buy Now</span>';
+                
+                if (item.stock < item.maxStock * 0.2) {
+                    stockLeft.className = 'stat-value urgent';
+                } else if (item.stock < item.maxStock * 0.4) {
+                    stockLeft.className = 'stat-value warning';
+                } else if (item.stock > item.maxStock * 0.7) {
+                    stockLeft.className = 'stat-value good';
+                } else {
+                    stockLeft.className = 'stat-value';
+                }
+            }
+        }
+
+        function createConfetti() {
+            for (let i = 0; i < 150; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * window.innerWidth + 'px';
+                    confetti.style.top = '-20px';
+                    confetti.style.background = `hsl(${Math.random() * 360}, 100%, 60%)`;
+                    confetti.style.position = 'fixed';
+                    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                    document.body.appendChild(confetti);
+
+                    setTimeout(() => confetti.remove(), 3500);
+                }, i * 15);
+            }
+        }
+
+        function handlePurchase() {
+            const item = items.find(i => i.id === currentItemId);
+            
+            if (item.stock > 0) {
+                item.stock--;
+                
+                const viewerBoost = Math.floor(15 + Math.random() * 20);
+                item.viewers = Math.min(150, Math.round(item.viewers + viewerBoost));
+                
+                const demandBoost = 10 + Math.random() * 15;
+                item.demand = Math.min(98, item.demand + demandBoost);
+                
+                item.previousPrice = item.currentPrice;
+                const scarcityMultiplier = item.stock < item.maxStock * 0.3 ? 1.5 : 1;
+                const priceBoost = (3 + Math.random() * 6) * scarcityMultiplier;
+                item.currentPrice = Math.min(item.maxPrice, item.currentPrice + priceBoost);
+                
+                stockLeft.textContent = item.stock;
+                viewersCount.textContent = Math.round(item.viewers);
+                demandFill.style.width = item.demand + '%';
+                demandPercent.textContent = Math.round(item.demand) + '%';
+                animateValue(priceDisplay, item.previousPrice, Math.round(item.currentPrice), 500);
+                
+                const change = ((item.currentPrice - item.initialPrice) / item.initialPrice * 100).toFixed(1);
+                priceChange.textContent = `${change >= 0 ? '+' : ''}${change}%`;
+                priceChange.className = `stat-value ${change > 0 ? 'good' : change < 0 ? 'urgent' : ''}`;
+                
+                createConfetti();
+                buyButton.style.display = 'none';
+                loading.style.display = 'block';
+
+                setTimeout(() => {
+                    loading.innerHTML = `✅ Order Confirmed! Enjoy your ${item.name}! 🎉`;
+                }, 2000);
+
+                setTimeout(() => {
+                    buyButton.style.display = 'block';
+                    buyButton.disabled = false;
+                    buyButton.innerHTML = '<span class="buy-button-text">Buy Now</span>';
+                    loading.style.display = 'none';
+                    loading.innerHTML = 'Processing your order... 🎉';
+                    updateStockStatus();
+                }, 4500);
+                
+                renderItems();
+            }
+        }
+
+        buyButton.addEventListener('click', handlePurchase);
+
+        function checkBreakTime() {
+            const currentMinute = new Date().getMinutes() % 60;
+            const wasBreakTime = isBreakTime;
+            isBreakTime = currentMinute >= 15 && currentMinute <= 45;
+            
+            if (isBreakTime !== wasBreakTime) {
+                rushBadge.style.display = isBreakTime ? 'inline-block' : 'none';
+            }
+        }
+
+        renderItems();
+        switchItem('maggi');
+        checkBreakTime();
+
+        setInterval(updateMarketDynamics, 5000);
+        setInterval(checkBreakTime, 10000);
+
+        updateMarketDynamics();
+    </script>
+</body>
+</html>
